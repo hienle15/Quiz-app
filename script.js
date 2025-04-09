@@ -15,12 +15,13 @@ toggleSwitch.addEventListener('change', switchMode, false);
 var quizButtons = document.querySelectorAll(".quiz-type");
 var quizType;
 
-for (var i = 0; i < quizButtons.length; i++) {
-    quizButtons[i].addEventListener("click", function () {
-        quizType = this.id;
+quizButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        quizType = button.id;
         questionScreen(quizType);
-    })
-}
+    });
+});
+
 
 function questionScreen(type) {
     document.querySelector(".start-menu").classList.toggle("visible")
@@ -50,11 +51,11 @@ function setSubjectBars(type) {
 }
 
 var quizChosen;
-var qCount = -1;
+var currentQuestionIndex = -1;
 var totalQuestions;
 var score = 0;
 var submit = document.querySelector(".submit-answer");
-var increment;
+var progressPerQuestion;
 
 async function getQuiz(type) {
     const response = await fetch('./data.json');
@@ -64,53 +65,43 @@ async function getQuiz(type) {
             quizChosen = quiz;
             totalQuestions = quizChosen.questions.length;
             document.querySelector(".question-total").textContent = totalQuestions
-            increment = (1 / totalQuestions) * 100;
+            progressPerQuestion = (1 / totalQuestions) * 100;
         }
     }
     makeQuestions(quizChosen)
 }
 
 function makeQuestions(quizChoice) {
-    qCount++;
-    document.querySelector(".question-number").textContent = (qCount + 1);
-    document.querySelector(".progress-bar.done").style.width = (increment * (qCount + 1)).toString() + "%";
+    currentQuestionIndex++;
+    document.querySelector(".question-number").textContent = (currentQuestionIndex + 1);
+    document.querySelector(".progress-bar.done").style.width = (progressPerQuestion * (currentQuestionIndex + 1)).toString() + "%";
     submit.textContent = "Submit"
     let options = document.querySelectorAll(".option");
-    document.querySelector(".question").textContent = quizChoice.questions[qCount].question;
+    document.querySelector(".question").textContent = quizChoice.questions[currentQuestionIndex].question;
 
-    for (let option of options) {
-        option.classList.remove("selected")
-        option.classList.remove("invalid")
-        option.classList.remove("correct")
-    }
+    options.forEach(option => {
+        option.classList.remove("selected", "invalid", "correct");
+    });
 
-    for (let i = 0; i < options.length; i++) {
-        switch (i) {
-            case 0: options[i].innerHTML = "<div class='option-box'>A</div>"
-                break;
-            case 1: options[i].innerHTML = "<div class='option-box'>B</div>"
-                break;
-            case 2: options[i].innerHTML = "<div class='option-box'>C</div>"
-                break;
-            case 3: options[i].innerHTML = "<div class='option-box'>D</div>"
-                break;
-        }
-        options[i].append(quizChoice.questions[qCount].options[i])
-    }
+    const labels = ["A", "B", "C", "D"];
+    options.forEach((option, i) => {
+        option.innerHTML = `<div class='option-box'>${labels[i]}</div>`;
+        option.append(quizChoice.questions[currentQuestionIndex].options[i]);
+    })
 }
 
 var options = document.querySelectorAll(".option");
 
-for (let i = 0; i < options.length; i++) {
-    options[i].addEventListener("click", function () {
-        for (option of options) {
-            option.classList.remove("selected")
-            option.firstChild.classList.remove("selected-box")
-        }
-        options[i].classList.add("selected")
-        options[i].firstChild.classList.add("selected-box")
-    })
-}
+options.forEach(option => {
+    option.addEventListener("click", function () {
+        options.forEach(opt => {
+            opt.classList.remove("selected");
+            opt.firstChild.classList.remove("selected-box");
+        });
+        option.classList.add("selected");
+        option.firstChild.classList.add("selected-box");
+    });
+});
 
 submit.addEventListener("click", function () {
     let selectedBox, answerText;
@@ -153,7 +144,7 @@ submit.addEventListener("click", function () {
 
     revealAnswers();
 
-    if (qCount >= (totalQuestions - 1)) {
+    if (currentQuestionIndex >= (totalQuestions - 1)) {
         submit.textContent = "See Results"
     }
     else {
@@ -183,7 +174,7 @@ function revealAnswers() {
 }
 
 function validate(selected) {
-    let question = quizChosen.questions[qCount];
+    let question = quizChosen.questions[currentQuestionIndex];
     return (question.answer === selected)
 }
 
@@ -198,6 +189,6 @@ document.querySelector(".restart").addEventListener("click", function () {
     document.querySelector(".quiz-complete").classList.toggle("visible")
     document.querySelector(".start-menu").classList.toggle("visible")
     document.querySelector(".curr-subject").style.visibility = "hidden"
-    qCount = -1
+    currentQuestionIndex = -1
     score = 0
 })

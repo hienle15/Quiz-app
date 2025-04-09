@@ -15,7 +15,7 @@
   --bg: url("./assets/images/pattern-background-mobile-light.svg");
   --sun-src: url("./assets/images/icon-sun-dark.svg");
   --moon-src: url("./assets/images/icon-moon-dark.svg");
-  --color:white;
+  --color: white;
 }
 
 [data-theme=dark] {
@@ -420,9 +420,6 @@ body article button:hover {
   .row-top {
     margin-bottom: 0;
   }
-  h1 {
-    width: 29rem;
-  }
   body article button {
     font-size: 1.25rem;
   }
@@ -435,8 +432,18 @@ body article button:hover {
     align-items: center;
     justify-content: center;
   }
+  .curr-subject {
+    display: flex;
+    gap: 16px;
+  }
   .left-content {
     max-width: 35rem;
+  }
+  .complete-left {
+    max-width: 35rem;
+  }
+  .complete-right {
+    width: 30rem;
   }
   .visible {
     display: flex;
